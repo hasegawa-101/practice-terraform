@@ -1,0 +1,27 @@
+name: Release to Artifact Registry
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write  # OIDCトークン発行に必要
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Workload Identity Federationを使ってGCPに認証する
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: 'projects/148649548779/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
+          service_account: 'github-actions-sa@practice-terraform-2025-a.iam.gserviceaccount.com'
+
+      # Google Cloud CLIのセットアップ
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
